@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export const instant = false;
+// export const instant = false;
 
 export const metadata: Metadata = {
   title: "Explore All Destinations | Wanderlast",
