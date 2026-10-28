@@ -25,6 +25,8 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { IDestination } from "@/lib/types/destinations";
+import { apiUrl, authHeader } from "@/lib/api";
+import { getTokenFromClient } from "@/lib/getTokenFromClient";
 
 const categories = ["Beach", "Mountain", "City", "Adventure", "Cultural"];
 
@@ -45,19 +47,21 @@ const EditDestinationDialog = ({
     const { _id, ...updatedData } = form;
     void _id;
 
-    const res = await fetch(
-      `http://localhost:8000/destination/${destination._id}`,
-      {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updatedData),
+    const token = await getTokenFromClient();
+
+    const res = await fetch(apiUrl(`/destination/${destination._id}`), {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        ...authHeader(token),
       },
-    );
+      body: JSON.stringify(updatedData),
+    });
 
     if (res.ok) {
       router.refresh();
+    } else {
+      alert("Failed to update this destination. Please try again.");
     }
   };
 

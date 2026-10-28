@@ -5,6 +5,7 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { IDestination } from "@/lib/types/destinations";
 import { authClient } from "@/lib/auth-client";
+import { apiUrl } from "@/lib/api";
 
 const perks = [
   "Free cancellation up to 7 days",
@@ -31,7 +32,7 @@ const BookingCard = ({ destination }: { destination: IDestination }) => {
         bookingDate: new Date()
     }
 
-   const res = await fetch('http://localhost:8000/booking', {
+   const res = await fetch(apiUrl("/booking"), {
     method: 'POST',
     headers: {
         'Content-Type': 'application/json'

@@ -8,8 +8,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { apiUrl } from "@/lib/api";
 
 // export const instant = false;
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Explore All Destinations | Wanderlast",
@@ -64,31 +67,42 @@ function formatDuration(value?: string) {
   return duration.replace(/\s*\/\s*/, " / ");
 }
 
-async function getDestinations(): Promise<Destination[]> {
+async function getDestinations(): Promise<{
+  destinations: Destination[];
+  failed: boolean;
+}> {
   try {
-    const res = await fetch("http://localhost:8000/destinations");
-    if (!res.ok) return [];
+    const res = await fetch(apiUrl("/destinations"), { cache: "no-store" });
+
+    if (!res.ok) {
+      console.error(`Failed to load destinations (${res.status})`);
+      return { destinations: [], failed: true };
+    }
 
     const data: ApiDestination[] = await res.json();
 
-    return data.map((item, index) => ({
-      id: item._id,
-      image:
-        item.imageUrl?.trim() ||
-        fallbackImages[index % fallbackImages.length],
-      rating: 4.5,
-      location: item.country?.trim() || "Unknown",
-      title: item.destinationName?.trim() || "Untitled destination",
-      price: item.price ?? 0,
-      duration: formatDuration(item.duration),
-    }));
-  } catch {
-    return [];
+    return {
+      destinations: data.map((item, index) => ({
+        id: item._id,
+        image:
+          item.imageUrl?.trim() ||
+          fallbackImages[index % fallbackImages.length],
+        rating: 4.5,
+        location: item.country?.trim() || "Unknown",
+        title: item.destinationName?.trim() || "Untitled destination",
+        price: item.price ?? 0,
+        duration: formatDuration(item.duration),
+      })),
+      failed: false,
+    };
+  } catch (error) {
+    console.error("Failed to load destinations", error);
+    return { destinations: [], failed: true };
   }
 }
 
 export default async function AllDestinationsPage() {
-  const destinations = await getDestinations();
+  const { destinations, failed } = await getDestinations();
 
   return (
     <main className="min-h-screen bg-background px-4 py-10 sm:px-6 sm:py-12 lg:px-8">
@@ -156,7 +170,9 @@ export default async function AllDestinationsPage() {
           </div>
         ) : (
           <p className="mt-10 text-sm text-muted-foreground">
-            No destinations available right now.
+            {failed
+              ? "We couldn't reach the destinations service right now. Please try again later."
+              : "No destinations available right now."}
           </p>
         )}
       </div>

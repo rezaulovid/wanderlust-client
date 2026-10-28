@@ -1,8 +1,14 @@
 import { headers } from "next/headers";
 
+import { auth } from "./auth";
+
 export async function getTokenFromServer() {
-  const headerList = await headers();
-  const cookie = headerList.get("cookie") ?? "";
-  const match = cookie.match(/(?:^|; )\s*better-auth\.session=([^;]*)/);
-  return match ? match[1] : null;
+  try {
+    const { token } = await auth.api.getToken({
+      headers: await headers(),
+    });
+    return token;
+  } catch {
+    return null;
+  }
 }

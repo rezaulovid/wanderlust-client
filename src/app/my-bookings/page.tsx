@@ -5,6 +5,7 @@ import MyBookingCard from "@/components/booking/MyBookingCard";
 import { IBooking } from "@/lib/types/booking";
 import { authClient } from "@/lib/auth-client";
 import { getTokenFromClient } from "@/lib/getTokenFromClient";
+import { apiUrl } from "@/lib/api";
 
 const MyBookingsPage = () => {
   const { data: session, isPending } = authClient.useSession();
@@ -23,10 +24,8 @@ const MyBookingsPage = () => {
         setLoading(true);
         setError(null);
         const token = await getTokenFromClient();
-        const apiUrl =
-          process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
         const res = await fetch(
-          `${apiUrl}/my-bookings/${encodeURIComponent(user.email)}`,
+          apiUrl(`/my-bookings/${encodeURIComponent(user.email)}`),
           {
             headers: token ? { authorization: `Bearer ${token}` } : {},
             cache: "no-store",

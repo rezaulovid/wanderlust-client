@@ -15,6 +15,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { apiUrl, authHeader } from "@/lib/api";
+import { getTokenFromClient } from "@/lib/getTokenFromClient";
 
 const categories = [
   "Beach",
@@ -60,10 +62,13 @@ const AddDestinationPage =  () => {
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const res = await fetch("http://localhost:8000/add-destination", {
+    const token = await getTokenFromClient();
+
+    const res = await fetch(apiUrl("/add-destination"), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        ...authHeader(token),
       },
       body: JSON.stringify(form),
     });

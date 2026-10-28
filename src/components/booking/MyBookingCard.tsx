@@ -6,6 +6,11 @@ import { Calendar, Eye, Ticket, XCircle } from "lucide-react";
 import { Button } from "../ui/button";
 import { IBooking } from "@/lib/types/booking";
 import { useState } from "react";
+import { apiUrl, authHeader } from "@/lib/api";
+import { getTokenFromClient } from "@/lib/getTokenFromClient";
+
+const FALLBACK_IMAGE =
+  "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=800&q=80";
 
 const MyBookingCard = ({
   booking,
@@ -18,7 +23,7 @@ const MyBookingCard = ({
   const [error, setError] = useState<string | null>(null);
 
   const title = booking.destinationName || booking.name || "Booking";
-  const imageSrc = booking.imageUrl || booking.image || "";
+  const imageSrc = booking.imageUrl || booking.image || FALLBACK_IMAGE;
 
   const handleCancelBooking = async () => {
     if (isCancelling) return;
@@ -36,10 +41,10 @@ const MyBookingCard = ({
     }
 
     try {
-      const apiUrl =
-        process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-      const res = await fetch(`${apiUrl}/my-bookings/${booking._id}`, {
+      const token = await getTokenFromClient();
+      const res = await fetch(apiUrl(`/my-bookings/${booking._id}`), {
         method: "DELETE",
+        headers: authHeader(token),
       });
 
       if (!res.ok) {

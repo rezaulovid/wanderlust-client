@@ -15,18 +15,24 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { apiUrl, authHeader } from "@/lib/api";
+import { getTokenFromClient } from "@/lib/getTokenFromClient";
 
 const DeleteDestinationDialog = ({ id }: { id: string }) => {
   const router = useRouter();
 
   const handleDeleteDestination = async () => {
-    const res = await fetch(`http://localhost:8000/destination/${id}`, {
+    const token = await getTokenFromClient();
+    const res = await fetch(apiUrl(`/destination/${id}`), {
       method: "DELETE",
+      headers: authHeader(token),
     });
 
     if (res.ok) {
       router.push("/destinations");
       router.refresh();
+    } else {
+      alert("Failed to delete this destination. Please try again.");
     }
   };
 
